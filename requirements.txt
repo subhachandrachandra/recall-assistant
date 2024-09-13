@@ -1,0 +1,6 @@
+# File: recall_assistant/requirements.txt
+
+google-cloud-storage
+google-cloud-firestore
+requests
+python-dotenv
