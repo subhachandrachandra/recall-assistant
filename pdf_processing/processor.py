@@ -7,6 +7,7 @@ import requests
 from config import Config
 from google.api_core.exceptions import NotFound
 from google.cloud import firestore, storage
+from llama_parse import LlamaParse
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -67,14 +68,19 @@ class PDFProcessor:
             logger.error(f"Error downloading '{file_name}': {e}")
             return None
 
-    def convert_pdf_to_markdown(self, pdf_bytes):
+    def convert_pdf_to_markdown(self, pdf_bytes, file_name):
         """Convert PDF bytes to Markdown using LlamaParse."""
         try:
-            headers = {"Authorization": f"Bearer {self.llamaparse_api_key}"}
-            files = {"file": ("document.pdf", pdf_bytes, "application/pdf")}
-            response = requests.post(self.llamaparse_url, headers=headers, files=files)
-            response.raise_for_status()
-            markdown_content = response.text
+            parser = LlamaParse(
+                result_type="markdown",  # "markdown" and "text" are available,
+                do_not_cache=True,
+                split_by_page=False,
+                gpt4o_mode=True,
+                gpt4o_api_key=Config.OPENAI_API_KEY,
+                page_separator="",
+            )
+            md = parser.load_data(pdf_bytes, extra_info={"file_name": file_name})
+            markdown_content = md[0].text
             logger.info("Successfully converted PDF to Markdown.")
             return markdown_content
         except requests.exceptions.RequestException as e:
@@ -113,7 +119,7 @@ class PDFProcessor:
                 continue
 
             # Convert to Markdown
-            markdown = self.convert_pdf_to_markdown(pdf_bytes)
+            markdown = self.convert_pdf_to_markdown(pdf_bytes, file_name)
             if not markdown:
                 continue
 

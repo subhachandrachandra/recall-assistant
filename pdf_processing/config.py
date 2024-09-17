@@ -21,6 +21,9 @@ class Config:
     # Firestore Credentials
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
+    # OpenAI Key
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
     # Other Configurations
     PROCESSED_FILES_COLLECTION = os.getenv(
         "PROCESSED_FILES_COLLECTION", "processed_files"
