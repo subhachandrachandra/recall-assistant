@@ -2,10 +2,13 @@
 
 import logging
 
-import openai
 from config import Config
 from google.api_core.exceptions import NotFound
 from google.cloud import firestore
+from openai import OpenAI
+
+client = OpenAI(api_key=Config.OPENAI_API_KEY)
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +24,6 @@ class LanguageModelProcessor:
         )
 
         # Initialize OpenAI API
-        openai.api_key = Config.OPENAI_API_KEY
 
     def fetch_unprocessed_articles(self):
         """Retrieve articles that have not been processed by the language model."""
@@ -40,7 +42,7 @@ class LanguageModelProcessor:
     def generate_summary(self, markdown_text):
         """Generate a summary for the given markdown text using OpenAI GPT-4o."""
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {
@@ -55,7 +57,7 @@ class LanguageModelProcessor:
                 max_tokens=150,
                 temperature=0.5,
             )
-            summary = response.choices[0].message["content"].strip()
+            summary = response.choices[0].message.content.strip()
             logger.info("Generated summary.")
             return summary
         except Exception as e:
@@ -75,7 +77,7 @@ class LanguageModelProcessor:
                 f"File Name: {file_name}\n"
                 f"Article Text: {markdown_text}"
             )
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {
@@ -87,7 +89,7 @@ class LanguageModelProcessor:
                 max_tokens=150,
                 temperature=0.5,
             )
-            metadata_text = response.choices[0].message["content"].strip()
+            metadata_text = response.choices[0].message.content.strip()
             metadata = self.parse_metadata(metadata_text)
             logger.info("Extracted metadata and generated keywords.")
             return metadata
