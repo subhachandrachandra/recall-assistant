@@ -5,3 +5,4 @@ google-cloud-firestore
 requests
 python-dotenv
 llama-parse
+openai
