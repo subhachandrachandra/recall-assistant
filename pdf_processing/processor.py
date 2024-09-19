@@ -97,6 +97,7 @@ class PDFProcessor:
                 "markdown": markdown_content,
                 "source": "GCS Bucket",
                 "file_name": file_name,
+                "processed_language_model": False,  # Initialize as unprocessed
             }
             self.articles_collection.document(file_name).set(article_data)
             logger.info(f"Saved Markdown content of '{file_name}' to Firestore.")
